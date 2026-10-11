@@ -1,0 +1,68 @@
+{
+  "project_info": {
+    "project_number": "545092861613",
+    "firebase_url": "https://post-auth-42085-default-rtdb.europe-west1.firebasedatabase.app",
+    "project_id": "post-auth-42085",
+    "storage_bucket": "post-auth-42085.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:545092861613:android:4b8e25cbaeb64c38bd1024",
+        "android_client_info": {
+          "package_name": "com.example.secret"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDoNEw9GLGUTy4hTL5MVz1C_lQJ2n2LDHw"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:545092861613:android:4acd71d7404fb264bd1024",
+        "android_client_info": {
+          "package_name": "com.nextdevelopment.posting"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDoNEw9GLGUTy4hTL5MVz1C_lQJ2n2LDHw"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:545092861613:android:cfc6481a7732c02bbd1024",
+        "android_client_info": {
+          "package_name": "com.nextdevelopment.secret"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDoNEw9GLGUTy4hTL5MVz1C_lQJ2n2LDHw"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
