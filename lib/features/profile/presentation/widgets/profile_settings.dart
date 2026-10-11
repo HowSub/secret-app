@@ -1,18 +1,18 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:get_it/get_it.dart';
+import 'package:secret/core/service/auth_service.dart';
 
-class ProfileSettings extends StatefulWidget {
+class ProfileSettings extends StatelessWidget {
   const ProfileSettings({super.key});
 
   @override
-  State<ProfileSettings> createState() => _ProfileSettingsState();
-}
-
-class _ProfileSettingsState extends State<ProfileSettings> {
-  final username = FirebaseAuth.instance.currentUser?.displayName ?? 'Ошибка';
-
-  @override
   Widget build(BuildContext context) {
+    final authService = GetIt.I<AuthService>();
+
+    final userDisplayName =
+        FirebaseAuth.instance.currentUser?.displayName ?? 'Ошибка';
+    final username = authService.username;
     return Center(
       child: Column(
         children: [
@@ -20,12 +20,16 @@ class _ProfileSettingsState extends State<ProfileSettings> {
             radius: 70,
             backgroundColor: Colors.black,
             child: Text(
-              username[0],
+              userDisplayName[0],
               style: TextStyle(color: Colors.white, fontSize: 50),
             ),
           ),
           const SizedBox(height: 10),
-          Text(username, style: TextStyle(fontSize: 30, fontWeight: .w500)),
+          Text(
+            userDisplayName,
+            style: TextStyle(fontSize: 30, fontWeight: .w500),
+          ),
+          Text('@$username'),
         ],
       ),
     );

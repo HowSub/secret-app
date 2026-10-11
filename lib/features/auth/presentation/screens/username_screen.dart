@@ -3,6 +3,8 @@ import 'dart:async';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
+import 'package:get_it/get_it.dart';
+import 'package:secret/core/service/auth_service.dart';
 
 class UsernameScreen extends StatefulWidget {
   const UsernameScreen({super.key});
@@ -32,7 +34,7 @@ class _UsernameScreenState extends State<UsernameScreen> {
     if (username.length < 3) return;
     if (!regExp.hasMatch(username)) return;
 
-    _debounce = Timer(const Duration(microseconds: 500), () {
+    _debounce = Timer(const Duration(milliseconds: 500), () {
       if (username.isNotEmpty) {
         _checkUniqueness(username);
       }
@@ -47,7 +49,7 @@ class _UsernameScreenState extends State<UsernameScreen> {
         app: Firebase.app(),
         databaseURL:
             'https://post-auth-42085-default-rtdb.europe-west1.firebasedatabase.app',
-      ).ref('users/${username}').get();
+      ).ref('usernames/$username').get();
 
       setState(() {
         _isUnique = snapshot.value == null;
@@ -88,8 +90,8 @@ class _UsernameScreenState extends State<UsernameScreen> {
                   prefixText: '@',
                   suffixIcon: _isLoading
                       ? SizedBox(
-                          height: 5,
-                          width: 5,
+                          height: 18,
+                          width: 18,
                           child: CircularProgressIndicator(color: Colors.black),
                         )
                       : _isUnique == null
@@ -122,7 +124,19 @@ class _UsernameScreenState extends State<UsernameScreen> {
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Colors.black,
                   ),
-                  onPressed: _isUnique == true && !_isLoading ? () {} : null,
+                  onPressed: _isUnique == true && !_isLoading
+                      ? () async {
+                          final username = _controller.text
+                              .trim();
+                          try {
+                            await GetIt.I<AuthService>().saveUsername(username);
+                          } catch (e) {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(content: Text('Something went wrong')),
+                            );
+                          }
+                        }
+                      : null,
                   child: Text(
                     'Continue',
                     style: TextStyle(color: Colors.white),

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:get_it/get_it.dart';
 import 'package:go_router/go_router.dart';
 import 'package:secret/core/service/auth_service.dart';
 import 'package:secret/features/auth/presentation/screens/login_screen.dart';
@@ -8,21 +9,20 @@ import 'package:secret/features/chat/presentation/screens/chat_screen.dart';
 import 'package:secret/features/home/presentation/screens/home_screen.dart';
 import 'package:secret/features/profile/presentation/screens/profile_screen.dart';
 
-final AuthService _authService = AuthService();
-
 final appRouter = GoRouter(
   initialLocation: '/splash',
-  refreshListenable: _authService,
+  refreshListenable: GetIt.I<AuthService>(),
   redirect: (context, state) {
-    final bool isInitialized = _authService.isInitialized;
-    final bool isLoggedIn = _authService.isLoggedIn;
-    final bool hasUsername = _authService.hasUsername;
+    final bool isInitialized = GetIt.I<AuthService>().isInitialized;
+    final bool isLoggedIn = GetIt.I<AuthService>().isLoggedIn;
+    final bool hasUsername = GetIt.I<AuthService>().hasUsername;
 
     final bool loggingIn =
         state.matchedLocation == '/register' ||
-        state.matchedLocation == '/login';
+        state.matchedLocation == '/login' ||
+        state.matchedLocation == '/splash';
 
-    if(!isInitialized) {
+    if (!isInitialized) {
       return state.matchedLocation == '/splash' ? null : '/splash';
     }
 
@@ -47,7 +47,9 @@ final appRouter = GoRouter(
       path: '/splash',
       builder: (context, state) => Scaffold(
         backgroundColor: Colors.black,
-        body: Center(child: Image.asset('assets/images/app_icon/app_icon_loading.gif')),
+        body: Center(
+          child: Image.asset('assets/images/app_icon/app_icon_loading.gif'),
+        ),
       ),
     ),
     GoRoute(path: '/login', builder: (context, state) => LoginScreen()),

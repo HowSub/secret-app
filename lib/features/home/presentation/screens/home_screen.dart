@@ -38,6 +38,22 @@ class _HomeScreenState extends State<HomeScreen> {
         child: SingleChildScrollView(
           child: Column(
             children: [
+              const SizedBox(height: 10),
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 10),
+                child: TextField(
+                  decoration: InputDecoration(
+                    filled: true,
+                    fillColor: const Color(0x64EBEBEB),
+                    prefixIcon: Icon(Icons.search),
+                    hintText: 'Search...',
+                    enabledBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(30),
+                      borderSide: BorderSide(color: Colors.transparent),
+                    ),
+                  ),
+                ),
+              ),
               const SizedBox(height: 20),
               Row(
                 children: [
@@ -49,7 +65,7 @@ class _HomeScreenState extends State<HomeScreen> {
                           vertical: 30,
                         ),
                         decoration: BoxDecoration(
-                          color: const Color(0xFFEBEBEB),
+                          color: const Color(0x64EBEBEB),
                         ),
                         child: Row(
                           children: [
