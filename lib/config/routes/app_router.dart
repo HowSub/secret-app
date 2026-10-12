@@ -19,11 +19,12 @@ final appRouter = GoRouter(
 
     final bool loggingIn =
         state.matchedLocation == '/register' ||
-        state.matchedLocation == '/login' ||
-        state.matchedLocation == '/splash';
+        state.matchedLocation == '/login';
+
+    final bool isSplash = state.matchedLocation == '/splash';
 
     if (!isInitialized) {
-      return state.matchedLocation == '/splash' ? null : '/splash';
+      return isSplash ? null : '/splash';
     }
 
     if (isLoggedIn && !hasUsername) {
@@ -34,8 +35,8 @@ final appRouter = GoRouter(
       return loggingIn ? null : '/login';
     }
 
-    if (loggingIn) {
-      return '/';
+    if (loggingIn || isSplash) {
+      return '/home';
     }
 
     return null;
@@ -54,7 +55,7 @@ final appRouter = GoRouter(
     ),
     GoRoute(path: '/login', builder: (context, state) => LoginScreen()),
     GoRoute(path: '/chat', builder: (context, state) => ChatScreen()),
-    GoRoute(path: '/', builder: (context, state) => HomeScreen()),
+    GoRoute(path: '/home', builder: (context, state) => HomeScreen()),
     GoRoute(path: '/profile', builder: (context, state) => ProfileScreen()),
     GoRoute(path: '/username', builder: (context, state) => UsernameScreen()),
   ],
