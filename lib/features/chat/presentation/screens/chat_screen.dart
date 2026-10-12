@@ -10,18 +10,25 @@ import 'package:secret/features/chat/presentation/bloc/chat_bloc.dart';
 import 'package:secret/features/chat/presentation/bloc/chat_event.dart';
 
 class ChatScreen extends StatefulWidget {
-  const ChatScreen({super.key});
+  final String chatRoomId;
+  final String partnerName;
+  final String partnerId;
+
+  const ChatScreen({
+    super.key,
+    required this.chatRoomId,
+    required this.partnerName,
+    required this.partnerId,
+  });
 
   @override
   State<ChatScreen> createState() => _ChatScreenState();
 }
 
 class _ChatScreenState extends State<ChatScreen> {
-  final DatabaseReference _ref = FirebaseDatabase.instanceFor(
-    app: Firebase.app(),
-    databaseURL:
-        'https://post-auth-42085-default-rtdb.europe-west1.firebasedatabase.app',
-  ).ref('messages/chat_room_1');
+  late final DatabaseReference _ref;
+  late final DatabaseReference _refMyChat;
+  late final DatabaseReference _refSecondChat;
 
   final TextEditingController _sendController = TextEditingController();
 
@@ -34,6 +41,29 @@ class _ChatScreenState extends State<ChatScreen> {
 
   @override
   void initState() {
+    _ref = FirebaseDatabase.instanceFor(
+      app: Firebase.app(),
+      databaseURL:
+          'https://post-auth-42085-default-rtdb.europe-west1.firebasedatabase.app',
+    ).ref('chats/${widget.chatRoomId}');
+
+    _refMyChat =
+        FirebaseDatabase.instanceFor(
+          app: Firebase.app(),
+          databaseURL:
+              'https://post-auth-42085-default-rtdb.europe-west1.firebasedatabase.app',
+        ).ref(
+          'user_chats/${FirebaseAuth.instance.currentUser?.uid}/${widget.partnerId}',
+        );
+    _refSecondChat =
+        FirebaseDatabase.instanceFor(
+          app: Firebase.app(),
+          databaseURL:
+              'https://post-auth-42085-default-rtdb.europe-west1.firebasedatabase.app',
+        ).ref(
+          'user_chats/${widget.partnerId}/${FirebaseAuth.instance.currentUser?.uid}',
+        );
+
     _scrollController.addListener(_scrollListener);
 
     _ref.onChildAdded.listen((event) {
@@ -105,7 +135,20 @@ class _ChatScreenState extends State<ChatScreen> {
       backgroundColor: Colors.white,
       appBar: AppBar(
         backgroundColor: Colors.white,
-        title: Text('Chat', style: TextStyle(fontSize: 24, fontWeight: .w600)),
+        title: Row(
+          children: [
+            CircleAvatar(
+              radius: 22,
+              backgroundColor: Colors.black,
+              child: Text(
+                widget.partnerName[0],
+                style: TextStyle(color: Colors.white),
+              ),
+            ),
+            const SizedBox(width: 16),
+            Text(widget.partnerName, style: TextStyle(fontSize: 24)),
+          ],
+        ),
       ),
       body: BlocProvider(
         create: (_) => ChatBloc(GetIt.I<ChatRepository>()),
@@ -125,7 +168,6 @@ class _ChatScreenState extends State<ChatScreen> {
                     final isMe =
                         message['senderId'] ==
                         FirebaseAuth.instance.currentUser?.uid;
-
                     return SizeTransition(
                       sizeFactor: animation,
                       child: Align(
@@ -189,14 +231,36 @@ class _ChatScreenState extends State<ChatScreen> {
                                   if (_sendController.text.trim().isEmpty) {
                                     return null;
                                   }
-                                  final _senderId =
+                                  final _myUid =
                                       FirebaseAuth.instance.currentUser?.uid
+                                          as String;
+                                  final _myName =
+                                      FirebaseAuth
+                                              .instance
+                                              .currentUser
+                                              ?.displayName
                                           as String;
                                   final _text = _sendController.text;
 
+                                  _refMyChat.set({
+                                    'chatRoomId': widget.chatRoomId,
+                                    'partnerId': widget.partnerId,
+                                    'partnerName': widget.partnerName,
+                                    'lastMessage': _text,
+                                    'timestamp': ServerValue.timestamp,
+                                  });
+                                  _refSecondChat.set({
+                                    'chatRoomId': widget.chatRoomId,
+                                    'partnerId': _myUid,
+                                    'partnerName': _myName,
+                                    'lastMessage': _text,
+                                    'timestamp': ServerValue.timestamp,
+                                  });
+
                                   newContext.read<ChatBloc>().add(
                                     SendMessage(
-                                      senderId: _senderId,
+                                      chatRoomId: widget.chatRoomId,
+                                      senderId: _myUid,
                                       text: _text,
                                     ),
                                   );

@@ -7,9 +7,9 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
   final ChatRepository repository;
 
   ChatBloc(this.repository) : super(ChatInitial()) {
-    on<SendMessage>((event, emit) {
+    on<SendMessage>((event, emit) async {
       try {
-        repository.sendMessage(event.senderId, event.text);
+        repository.sendMessage(event.chatRoomId, event.senderId, event.text);
       } catch (e) {
         emit(ChatFailure(message: e.toString()));
       }

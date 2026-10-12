@@ -8,7 +8,7 @@ class ChatRepositoryImpl implements ChatRepository {
   ChatRepositoryImpl({required this._dataSource});
 
   @override
-  void sendMessage(String senderId, String text) {
-    _dataSource.sendMessage(senderId, text);
+  void sendMessage(String chatRoomId, String senderId, String text) {
+    _dataSource.sendMessage(chatRoomId, senderId, text);
   }
 }

@@ -40,7 +40,7 @@ final appRouter = GoRouter(
       return '/home';
     }
 
-    if(loggingIn && hasUsername) {
+    if (loggingIn && hasUsername) {
       return '/home';
     }
 
@@ -62,6 +62,19 @@ final appRouter = GoRouter(
     GoRoute(path: '/login', builder: (context, state) => LoginScreen()),
     GoRoute(path: '/home', builder: (context, state) => HomeScreen()),
     GoRoute(path: '/profile', builder: (context, state) => ProfileScreen()),
-    GoRoute(path: '/chat', builder: (context, state) => ChatScreen()),
+    GoRoute(
+      path: '/chat/:chatRoomId/:partnerName/:partnerId',
+      builder: (context, state) {
+        final chatRoomId = state.pathParameters['chatRoomId']!;
+        final partnerName = state.pathParameters['partnerName']!;
+        final partnerId = state.pathParameters['partnerId']!;
+
+        return ChatScreen(
+          chatRoomId: chatRoomId,
+          partnerName: partnerName,
+          partnerId: partnerId,
+        );
+      },
+    ),
   ],
 );

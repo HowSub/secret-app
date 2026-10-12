@@ -1,3 +1,3 @@
 abstract class ChatRepository {
-  void sendMessage(String senderId, String text);
+  void sendMessage(String chatRoomId, String senderId, String text);
 }

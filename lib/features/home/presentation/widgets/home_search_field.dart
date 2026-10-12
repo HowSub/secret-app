@@ -4,6 +4,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 
 class HomeSearchField extends StatefulWidget {
   const HomeSearchField({super.key});
@@ -126,7 +127,26 @@ class _HomeSearchFieldState extends State<HomeSearchField> {
                   ),
                   title: Text(user['name']!),
                   subtitle: Text('@${user['username']}'),
-                  onTap: () {},
+                  onTap: () {
+                    final myUid = FirebaseAuth.instance.currentUser?.uid;
+                    final partnerUid = user['uid'];
+                    final partnerName = user['name'];
+
+                    if (myUid == null ||
+                        partnerUid == null ||
+                        partnerName == null)
+                      return;
+
+                    final List<String> uids = [myUid, partnerUid];
+                    uids.sort();
+                    final chatRoomId = uids.join('_');
+                    setState(() {
+                      _searchResults = [];
+                      _controller.clear();
+                    });
+
+                    context.push('/chat/$chatRoomId/$partnerName/$partnerUid');
+                  },
                 );
               },
             ),

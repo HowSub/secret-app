@@ -1,6 +1,7 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:secret/features/home/presentation/widgets/home_chat_list.dart';
 import 'package:secret/features/home/presentation/widgets/home_search_field.dart';
 
 class HomeScreen extends StatefulWidget {
@@ -42,40 +43,7 @@ class _HomeScreenState extends State<HomeScreen> {
               const SizedBox(height: 10),
               HomeSearchField(),
               const SizedBox(height: 20),
-              Row(
-                children: [
-                  Expanded(
-                    child: GestureDetector(
-                      child: Container(
-                        padding: EdgeInsets.symmetric(
-                          horizontal: 20,
-                          vertical: 30,
-                        ),
-                        decoration: BoxDecoration(
-                          color: const Color(0x64EBEBEB),
-                        ),
-                        child: Row(
-                          children: [
-                            Expanded(
-                              child: Text(
-                                'Chat',
-                                style: TextStyle(
-                                  fontWeight: .w500,
-                                  fontSize: 20,
-                                ),
-                              ),
-                            ),
-                            Icon(Icons.arrow_forward_ios_outlined),
-                          ],
-                        ),
-                      ),
-                      onTap: () {
-                        context.push('/chat');
-                      },
-                    ),
-                  ),
-                ],
-              ),
+              HomeChatList(),
             ],
           ),
         ),
