@@ -89,10 +89,18 @@ class _UsernameScreenState extends State<UsernameScreen> {
                 decoration: InputDecoration(
                   prefixText: '@',
                   suffixIcon: _isLoading
-                      ? SizedBox(
-                          height: 18,
-                          width: 18,
-                          child: CircularProgressIndicator(color: Colors.black),
+                      ? Padding(
+                          padding: const EdgeInsets.only(right: 20),
+                          child: Align(
+                            alignment: Alignment.centerRight,
+                            child: SizedBox(
+                              height: 18,
+                              width: 18,
+                              child: CircularProgressIndicator(
+                                color: Colors.black,
+                              ),
+                            ),
+                          ),
                         )
                       : _isUnique == null
                       ? null
@@ -126,8 +134,7 @@ class _UsernameScreenState extends State<UsernameScreen> {
                   ),
                   onPressed: _isUnique == true && !_isLoading
                       ? () async {
-                          final username = _controller.text
-                              .trim();
+                          final username = _controller.text.trim();
                           try {
                             await GetIt.I<AuthService>().saveUsername(username);
                           } catch (e) {

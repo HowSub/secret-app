@@ -28,9 +28,10 @@ class AuthService extends ChangeNotifier {
                   .get()
                   .timeout(
                     const Duration(seconds: 3),
-                  ); // <-- ДОБАВЬТЕ ТАЙМАУТ СЮДА!
+                  );
           _username = snapshot.value as String?;
         } catch (e) {
+          print(e);
           _username = null;
         }
       } else {

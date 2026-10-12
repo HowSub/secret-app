@@ -1,6 +1,7 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:secret/features/home/presentation/widgets/home_search_field.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -39,21 +40,7 @@ class _HomeScreenState extends State<HomeScreen> {
           child: Column(
             children: [
               const SizedBox(height: 10),
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 10),
-                child: TextField(
-                  decoration: InputDecoration(
-                    filled: true,
-                    fillColor: const Color(0x64EBEBEB),
-                    prefixIcon: Icon(Icons.search),
-                    hintText: 'Search...',
-                    enabledBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(30),
-                      borderSide: BorderSide(color: Colors.transparent),
-                    ),
-                  ),
-                ),
-              ),
+              HomeSearchField(),
               const SizedBox(height: 20),
               Row(
                 children: [

@@ -118,7 +118,6 @@ class _ChatScreenState extends State<ChatScreen> {
                   query: _ref,
                   padding: EdgeInsets.only(bottom: 30),
                   itemBuilder: (context, snapshot, animation, index) {
-
                     final message = Map<String, dynamic>.from(
                       snapshot.value as Map,
                     );
@@ -163,6 +162,13 @@ class _ChatScreenState extends State<ChatScreen> {
                         decoration: InputDecoration(
                           hintText: 'Enter message...',
                           enabledBorder: OutlineInputBorder(
+                            borderSide: BorderSide(
+                              color: Colors.black,
+                              width: 2,
+                            ),
+                            borderRadius: BorderRadius.circular(20),
+                          ),
+                          focusedBorder: OutlineInputBorder(
                             borderSide: BorderSide(
                               color: Colors.black,
                               width: 2,
