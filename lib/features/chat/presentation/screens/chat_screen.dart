@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_database/firebase_database.dart';
@@ -34,6 +36,11 @@ class _ChatScreenState extends State<ChatScreen> {
   final ScrollController _scrollController = ScrollController();
   final FocusNode _focusNode = FocusNode();
 
+  StreamSubscription<DatabaseEvent>? _typingSubscription;
+  bool _isMeTyping = false;
+  bool _isPartnerTyping = false;
+  Timer? _debounce;
+
   @override
   void initState() {
     super.initState();
@@ -65,10 +72,45 @@ class _ChatScreenState extends State<ChatScreen> {
     _sendController.addListener(() {
       setState(() {});
     });
+
+    _typingSubscription = _refMyChat.child('isTyping').onValue.listen((event) {
+      if (mounted) {
+        setState(() {
+          _isPartnerTyping = event.snapshot.value as bool? ?? false;
+        });
+      }
+    });
+  }
+
+  void _onTyping(String text) {
+    _debounce?.cancel();
+
+    if (text.trim().isEmpty) {
+      _updateTypingStatus(false);
+      return;
+    }
+
+    if (!_isMeTyping) {
+      _updateTypingStatus(true);
+    }
+
+    _debounce = Timer(const Duration(seconds: 2), () {
+      _updateTypingStatus(false);
+    });
+  }
+
+  void _updateTypingStatus(bool typing) {
+    _isMeTyping = typing;
+    _refSecondChat.update({'isTyping': typing});
   }
 
   @override
   void dispose() {
+    _debounce?.cancel();
+    _typingSubscription?.cancel();
+    _refSecondChat.update({'isTyping': false});
+
+    _sendController.removeListener(() {});
     _scrollController.dispose();
     _sendController.dispose();
     _focusNode.dispose();
@@ -92,7 +134,12 @@ class _ChatScreenState extends State<ChatScreen> {
               ),
             ),
             const SizedBox(width: 16),
-            Text(widget.partnerName, style: const TextStyle(fontSize: 24)),
+            Column(
+              children: [
+                Text(widget.partnerName, style: const TextStyle(fontSize: 24)),
+                if (_isPartnerTyping) Text('typing...'),
+              ],
+            ),
           ],
         ),
       ),
@@ -162,6 +209,7 @@ class _ChatScreenState extends State<ChatScreen> {
                   children: [
                     Expanded(
                       child: TextField(
+                        onChanged: _onTyping,
                         focusNode: _focusNode,
                         controller: _sendController,
                         decoration: InputDecoration(
@@ -202,9 +250,6 @@ class _ChatScreenState extends State<ChatScreen> {
                                       'User';
                                   final text = _sendController.text.trim();
 
-                                  // Примечание: При отправке сообщения в узлы чата
-                                  // обязательно добавляйте 'timestamp': ServerValue.timestamp,
-                                  // чтобы orderByChild('timestamp') работал корректно.
                                   _refMyChat.set({
                                     'chatRoomId': widget.chatRoomId,
                                     'partnerId': widget.partnerId,
