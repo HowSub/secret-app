@@ -31,16 +31,13 @@ class _ChatScreenState extends State<ChatScreen> {
   late final DatabaseReference _refSecondChat;
 
   final TextEditingController _sendController = TextEditingController();
-
   final ScrollController _scrollController = ScrollController();
   final FocusNode _focusNode = FocusNode();
-  bool _isNearBottom = true;
-  int _unreadCount = 0;
-
-  bool isHaveMessages = false;
 
   @override
   void initState() {
+    super.initState();
+
     _ref = FirebaseDatabase.instanceFor(
       app: Firebase.app(),
       databaseURL:
@@ -55,6 +52,7 @@ class _ChatScreenState extends State<ChatScreen> {
         ).ref(
           'user_chats/${FirebaseAuth.instance.currentUser?.uid}/${widget.partnerId}',
         );
+
     _refSecondChat =
         FirebaseDatabase.instanceFor(
           app: Firebase.app(),
@@ -64,60 +62,8 @@ class _ChatScreenState extends State<ChatScreen> {
           'user_chats/${widget.partnerId}/${FirebaseAuth.instance.currentUser?.uid}',
         );
 
-    _scrollController.addListener(_scrollListener);
-
-    _ref.onChildAdded.listen((event) {
-      if (!_isNearBottom) {
-        setState(() {
-          _unreadCount++;
-        });
-      } else {
-        _scrollToBottom();
-      }
-    });
-    _focusNode.addListener(() {
-      if (_focusNode.hasFocus) {
-        _scrollToBottom();
-      }
-    });
-
     _sendController.addListener(() {
       setState(() {});
-    });
-
-    super.initState();
-  }
-
-  void _scrollListener() {
-    if (!_scrollController.hasClients) return;
-    final maxScroll = _scrollController.position.maxScrollExtent;
-    final currentScroll = _scrollController.position.pixels;
-
-    if (maxScroll - currentScroll < 50) {
-      if (!_isNearBottom) {
-        setState(() {
-          _isNearBottom = true;
-          _unreadCount = 0;
-        });
-      }
-    } else {
-      if (_isNearBottom) {
-        setState(() {
-          _isNearBottom = false;
-        });
-      }
-    }
-  }
-
-  void _scrollToBottom() {
-    Future.delayed(const Duration(milliseconds: 100), () {
-      if (_scrollController.hasClients) {
-        _scrollController.animateTo(
-          _scrollController.position.maxScrollExtent,
-          duration: const Duration(milliseconds: 300),
-          curve: Curves.easeOut,
-        );
-      }
     });
   }
 
@@ -142,11 +88,11 @@ class _ChatScreenState extends State<ChatScreen> {
               backgroundColor: Colors.black,
               child: Text(
                 widget.partnerName[0],
-                style: TextStyle(color: Colors.white),
+                style: const TextStyle(color: Colors.white),
               ),
             ),
             const SizedBox(width: 16),
-            Text(widget.partnerName, style: TextStyle(fontSize: 24)),
+            Text(widget.partnerName, style: const TextStyle(fontSize: 24)),
           ],
         ),
       ),
@@ -158,8 +104,18 @@ class _ChatScreenState extends State<ChatScreen> {
               Expanded(
                 child: FirebaseAnimatedList(
                   controller: _scrollController,
-                  query: _ref,
-                  padding: EdgeInsets.only(bottom: 30),
+                  sort: (DataSnapshot a, DataSnapshot b) {
+                    final aMap = Map<String, dynamic>.from(a.value as Map);
+                    final bMap = Map<String, dynamic>.from(b.value as Map);
+
+                    final aTimestamp = aMap['timestamp'] as int? ?? 0;
+                    final bTimestamp = bMap['timestamp'] as int? ?? 0;
+
+                    return bTimestamp.compareTo(aTimestamp);
+                  },
+                  query: _ref.orderByChild('timestamp'),
+                  reverse: true,
+                  padding: const EdgeInsets.only(top: 30),
                   itemBuilder: (context, snapshot, animation, index) {
                     final message = Map<String, dynamic>.from(
                       snapshot.value as Map,
@@ -168,6 +124,7 @@ class _ChatScreenState extends State<ChatScreen> {
                     final isMe =
                         message['senderId'] ==
                         FirebaseAuth.instance.currentUser?.uid;
+
                     return SizeTransition(
                       sizeFactor: animation,
                       child: Align(
@@ -179,14 +136,20 @@ class _ChatScreenState extends State<ChatScreen> {
                             vertical: 4,
                             horizontal: 8,
                           ),
-                          padding: EdgeInsets.all(12),
+                          padding: const EdgeInsets.all(12),
                           decoration: BoxDecoration(
                             color: isMe
-                                ? const Color(0x2F2195F3)
+                                ? const Color(0xFF000000)
                                 : const Color(0xFFE0E0E0),
                             borderRadius: BorderRadius.circular(12),
                           ),
-                          child: Text(text, style: TextStyle(fontSize: 18)),
+                          child: Text(
+                            text,
+                            style: const TextStyle(
+                              fontSize: 14,
+                              color: Colors.white,
+                            ),
+                          ),
                         ),
                       ),
                     );
@@ -204,14 +167,14 @@ class _ChatScreenState extends State<ChatScreen> {
                         decoration: InputDecoration(
                           hintText: 'Enter message...',
                           enabledBorder: OutlineInputBorder(
-                            borderSide: BorderSide(
+                            borderSide: const BorderSide(
                               color: Colors.black,
                               width: 2,
                             ),
                             borderRadius: BorderRadius.circular(20),
                           ),
                           focusedBorder: OutlineInputBorder(
-                            borderSide: BorderSide(
+                            borderSide: const BorderSide(
                               color: Colors.black,
                               width: 2,
                             ),
@@ -228,43 +191,43 @@ class _ChatScreenState extends State<ChatScreen> {
                         return IconButton(
                           onPressed: isCanSend
                               ? () {
-                                  if (_sendController.text.trim().isEmpty) {
-                                    return null;
-                                  }
-                                  final _myUid =
+                                  final myUid =
                                       FirebaseAuth.instance.currentUser?.uid
                                           as String;
-                                  final _myName =
+                                  final myName =
                                       FirebaseAuth
-                                              .instance
-                                              .currentUser
-                                              ?.displayName
-                                          as String;
-                                  final _text = _sendController.text;
+                                          .instance
+                                          .currentUser
+                                          ?.displayName ??
+                                      'User';
+                                  final text = _sendController.text.trim();
 
+                                  // Примечание: При отправке сообщения в узлы чата
+                                  // обязательно добавляйте 'timestamp': ServerValue.timestamp,
+                                  // чтобы orderByChild('timestamp') работал корректно.
                                   _refMyChat.set({
                                     'chatRoomId': widget.chatRoomId,
                                     'partnerId': widget.partnerId,
                                     'partnerName': widget.partnerName,
-                                    'lastMessage': _text,
+                                    'lastMessage': text,
                                     'timestamp': ServerValue.timestamp,
                                   });
+
                                   _refSecondChat.set({
                                     'chatRoomId': widget.chatRoomId,
-                                    'partnerId': _myUid,
-                                    'partnerName': _myName,
-                                    'lastMessage': _text,
+                                    'partnerId': myUid,
+                                    'partnerName': myName,
+                                    'lastMessage': text,
                                     'timestamp': ServerValue.timestamp,
                                   });
 
                                   newContext.read<ChatBloc>().add(
                                     SendMessage(
                                       chatRoomId: widget.chatRoomId,
-                                      senderId: _myUid,
-                                      text: _text,
+                                      senderId: myUid,
+                                      text: text,
                                     ),
                                   );
-
                                   _sendController.clear();
                                 }
                               : null,

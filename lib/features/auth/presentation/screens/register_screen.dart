@@ -102,10 +102,10 @@ class _RegisterScreenState extends State<RegisterScreen> {
                         return 'Empty input';
                       }
                       final regExp = RegExp(
-                        r'^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{8,}$',
+                        r'^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{6,}$',
                       );
                       if (!regExp.hasMatch(value)) {
-                        return 'Password must have 8 symbols and special symbols';
+                        return 'Password must have 6 symbols and special symbols';
                       }
                       return null;
                     },

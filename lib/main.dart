@@ -1,5 +1,8 @@
+import 'dart:developer';
+
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:get_it/get_it.dart';
 import 'package:secret/app.dart';
@@ -16,7 +19,9 @@ void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
-
+  final messaging = await FirebaseMessaging.instance;
+  messaging.getToken().then(((token) => log(token ?? 'No token')));
+  
   GetIt.I.registerLazySingleton<ChatRepository>(
     () => ChatRepositoryImpl(dataSource: ChatDataSource()),
   );
